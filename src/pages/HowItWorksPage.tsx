@@ -38,6 +38,19 @@ export function HowItWorksPage() {
           </ul>
         </Section>
 
+        {/* User journey */}
+        <Section title="Jornada do Usuário">
+          <pre className="text-term-green text-center leading-relaxed">{`
+  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+  │          │    │          │    │          │    │          │    │          │    │          │
+  │ INSTALA  │───▶│CONFIGURA │───▶│   SCAN   │───▶│ ANALISA  │───▶│   AGE    │───▶│  MEDE    │
+  │          │    │          │    │          │    │          │    │          │    │          │
+  └──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘
+   npm install     configure       scan            dashboard       aplica          compare
+   @carbonlens     --profile       --region        report          otimizações     before/after
+`}</pre>
+        </Section>
+
         {/* What is it */}
         <Section title="O que é o Carbon Lens?">
           <p className="text-term-fg leading-relaxed">

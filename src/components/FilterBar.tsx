@@ -5,6 +5,7 @@ interface Props {
   onFilterChange: (filter: FilterCategory) => void;
   onGenerateReport: () => void;
   isGenerating: boolean;
+  spinnerFrame?: string;
 }
 
 const filters: { key: string; label: string; value: FilterCategory }[] = [
@@ -14,7 +15,7 @@ const filters: { key: string; label: string; value: FilterCategory }[] = [
   { key: '4', label: 'Database', value: 'database' },
 ];
 
-export function FilterBar({ activeFilter, onFilterChange, onGenerateReport, isGenerating }: Props) {
+export function FilterBar({ activeFilter, onFilterChange, onGenerateReport, isGenerating, spinnerFrame }: Props) {
   return (
     <div className="bg-term-highlight border-t border-term-border px-2 py-1 flex items-center justify-between flex-wrap gap-1">
       <div className="flex items-center gap-1">
@@ -42,11 +43,20 @@ export function FilterBar({ activeFilter, onFilterChange, onGenerateReport, isGe
           disabled={isGenerating}
           className={`
             px-2 py-0.5 text-xs transition-colors
-            ${isGenerating ? 'text-term-dim' : 'text-term-green hover:bg-term-select'}
+            ${isGenerating ? 'text-term-yellow' : 'text-term-green hover:bg-term-select'}
           `}
         >
-          <span className="text-term-yellow">&lt;r&gt;</span>
-          <span className="ml-1">{isGenerating ? 'gerando...' : 'Gerar Relatório'}</span>
+          {isGenerating ? (
+            <>
+              <span className="mr-1">{spinnerFrame || '⠋'}</span>
+              <span>calculando...</span>
+            </>
+          ) : (
+            <>
+              <span className="text-term-yellow">&lt;r&gt;</span>
+              <span className="ml-1">Gerar Relatório</span>
+            </>
+          )}
         </button>
         <span className="text-term-dim text-xs">│</span>
         <span className="text-term-dim text-xs">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { FilterCategory, Report } from '../types';
 import {
   Header,
@@ -18,11 +18,17 @@ import {
   generateReport,
 } from '../data';
 
+const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+
 export function Dashboard() {
   const [activeFilter, setActiveFilter] = useState<FilterCategory>('all');
   const [report, setReport] = useState<Report | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedOpp, setSelectedOpp] = useState<string | null>(null);
+  const [spinnerFrame, setSpinnerFrame] = useState(0);
+  const [lastAnalysis, setLastAnalysis] = useState(Date.now());
+  const [notification, setNotification] = useState<string | null>('⚠ 2 recursos críticos detectados');
+  const spinnerInterval = useRef<number | null>(null);
 
   const filteredOpportunities =
     activeFilter === 'all'
@@ -31,12 +37,46 @@ export function Dashboard() {
 
   const selectedOpportunity = opportunities.find((o) => o.id === selectedOpp);
 
+  // Spinner animation during report generation
+  useEffect(() => {
+    if (isGenerating) {
+      spinnerInterval.current = window.setInterval(() => {
+        setSpinnerFrame((f) => (f + 1) % SPINNER_FRAMES.length);
+      }, 80);
+    } else {
+      if (spinnerInterval.current) clearInterval(spinnerInterval.current);
+    }
+    return () => {
+      if (spinnerInterval.current) clearInterval(spinnerInterval.current);
+    };
+  }, [isGenerating]);
+
+  // Live "last analysis" timer
+  const [timeAgo, setTimeAgo] = useState('agora');
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const diff = Math.floor((Date.now() - lastAnalysis) / 1000);
+      if (diff < 60) setTimeAgo(`há ${diff}s`);
+      else setTimeAgo(`há ${Math.floor(diff / 60)}min`);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lastAnalysis]);
+
+  // Auto-dismiss notification
+  useEffect(() => {
+    if (notification) {
+      const t = setTimeout(() => setNotification(null), 8000);
+      return () => clearTimeout(t);
+    }
+  }, [notification]);
+
   const handleGenerateReport = () => {
     setIsGenerating(true);
     setTimeout(() => {
       setReport(generateReport());
       setIsGenerating(false);
-    }, 1500);
+      setLastAnalysis(Date.now());
+    }, 2500);
   };
 
   // Keyboard shortcuts
@@ -62,7 +102,20 @@ export function Dashboard() {
     <div className="flex-1 bg-term-bg flex flex-col overflow-hidden">
       <Header />
 
-      <main className="flex-1 flex flex-col overflow-hidden">
+      {/* Notification toast */}
+      {notification && (
+        <div className="absolute top-14 right-4 z-40 bg-term-highlight border border-term-yellow px-3 py-1.5 text-xs font-mono text-term-yellow animate-pulse flex items-center gap-2">
+          <span>{notification}</span>
+          <button
+            onClick={() => setNotification(null)}
+            className="text-term-dim hover:text-term-fg"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      <main className="flex-1 flex flex-col overflow-hidden relative">
         {/* Top panels row */}
         <div className="grid grid-cols-1 md:grid-cols-12 border-b border-term-border">
           {/* Score panel */}
@@ -72,8 +125,11 @@ export function Dashboard() {
 
           {/* Resource scores panel */}
           <div className="md:col-span-8">
-            <div className="bg-term-highlight px-2 py-0.5 border-b border-term-border">
+            <div className="bg-term-highlight px-2 py-0.5 border-b border-term-border flex items-center justify-between">
               <span className="text-term-cyan text-xs">┤ Scores por Recurso ├</span>
+              <span className="text-term-dim text-xs">
+                última análise: <span className="text-term-fg">{timeAgo}</span>
+              </span>
             </div>
             <div className="divide-y divide-term-border">
               {resourceScores.map((resource) => (
@@ -144,6 +200,7 @@ export function Dashboard() {
         onFilterChange={setActiveFilter}
         onGenerateReport={handleGenerateReport}
         isGenerating={isGenerating}
+        spinnerFrame={isGenerating ? SPINNER_FRAMES[spinnerFrame] : undefined}
       />
 
       {/* Report Modal */}

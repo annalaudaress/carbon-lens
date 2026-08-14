@@ -20,6 +20,7 @@ const HELP_OUTPUT: TerminalLine[] = [
   { type: 'success', content: '    scan               Analisa recursos da conta AWS' },
   { type: 'success', content: '    report             Gera relatório de sustentabilidade' },
   { type: 'success', content: '    opportunities      Lista oportunidades de otimização' },
+  { type: 'success', content: '    compare            Compara estado atual vs otimizado' },
   { type: 'success', content: '    score              Mostra o score atual' },
   { type: 'success', content: '    help               Mostra esta ajuda' },
   { type: 'success', content: '    version            Mostra a versão' },
@@ -110,6 +111,40 @@ const SCORE_OUTPUT: TerminalLine[] = [
   { type: 'info', content: '' },
 ];
 
+const COMPARE_ANIMATED: AnimatedStep[] = [
+  { line: { type: 'info', content: '' }, delay: 0 },
+  { line: { type: 'spinner', content: '  ⠋ Carregando estado atual...' }, delay: 400 },
+  { line: { type: 'success', content: '  ✓ Estado atual carregado' }, delay: 800 },
+  { line: { type: 'spinner', content: '  ⠙ Simulando otimizações...' }, delay: 400 },
+  { line: { type: 'success', content: '  ✓ Simulação completa' }, delay: 1000 },
+  { line: { type: 'info', content: '' }, delay: 300 },
+  { line: { type: 'ascii', content: '  ┌─────────────────────────────────────────────────────────────────┐' }, delay: 100 },
+  { line: { type: 'ascii', content: '  │              COMPARAÇÃO: ANTES vs DEPOIS                        │' }, delay: 100 },
+  { line: { type: 'ascii', content: '  ├──────────────────────────┬──────────────────────────────────────┤' }, delay: 100 },
+  { line: { type: 'ascii', content: '  │       ANTES (atual)      │       DEPOIS (otimizado)             │' }, delay: 100 },
+  { line: { type: 'ascii', content: '  ├──────────────────────────┼──────────────────────────────────────┤' }, delay: 100 },
+  { line: { type: 'ascii', content: '  │                          │                                      │' }, delay: 80 },
+  { line: { type: 'ascii', content: '  │  Score:    84/100        │  Score:    94/100  (+10)      ▲      │' }, delay: 150 },
+  { line: { type: 'ascii', content: '  │  Custo:    US$ 4.850/mês │  Custo:    US$ 4.530/mês  (-6.6%)   │' }, delay: 150 },
+  { line: { type: 'ascii', content: '  │  CO₂:     2.4 MTCO₂e    │  CO₂:     1.7 MTCO₂e    (-28%)     │' }, delay: 150 },
+  { line: { type: 'ascii', content: '  │                          │                                      │' }, delay: 80 },
+  { line: { type: 'ascii', content: '  │  Compute:  82%           │  Compute:  93%  (+11)               │' }, delay: 150 },
+  { line: { type: 'ascii', content: '  │  Storage:  91%           │  Storage:  96%  (+5)                │' }, delay: 150 },
+  { line: { type: 'ascii', content: '  │  Database: 76%           │  Database: 89%  (+13)               │' }, delay: 150 },
+  { line: { type: 'ascii', content: '  │                          │                                      │' }, delay: 80 },
+  { line: { type: 'ascii', content: '  │  EC2: 47 instâncias      │  EC2: 35 instâncias (-12 removidas) │' }, delay: 150 },
+  { line: { type: 'ascii', content: '  │  EBS: 8 sem attach       │  EBS: 0 sem attach  (limpos)       │' }, delay: 150 },
+  { line: { type: 'ascii', content: '  │  RDS: 3 Multi-AZ dev     │  RDS: 0 Multi-AZ dev (corrigidos)  │' }, delay: 150 },
+  { line: { type: 'ascii', content: '  │  S3: sem lifecycle       │  S3: lifecycle ativo (100%)        │' }, delay: 150 },
+  { line: { type: 'ascii', content: '  │                          │                                      │' }, delay: 80 },
+  { line: { type: 'ascii', content: '  └──────────────────────────┴──────────────────────────────────────┘' }, delay: 100 },
+  { line: { type: 'info', content: '' }, delay: 200 },
+  { line: { type: 'success', content: '  ✓ Economia total estimada: US$ 320/mês' }, delay: 300 },
+  { line: { type: 'success', content: '  ✓ Redução de CO₂ estimada: -28% (-0.7 MTCO₂e/mês)' }, delay: 300 },
+  { line: { type: 'info', content: '  ⚡ Ações com maior impacto: Migrar para Graviton, remover recursos ociosos' }, delay: 300 },
+  { line: { type: 'info', content: '' }, delay: 0 },
+];
+
 const VERSION_OUTPUT: TerminalLine[] = [
   { type: 'info', content: '' },
   { type: 'success', content: '  Carbon Lens CLI v1.0.0' },
@@ -163,12 +198,13 @@ const SCAN_ANIMATED: AnimatedStep[] = [
   { line: { type: 'info', content: '  ─── Calculando emissões de CO₂ ───────────────────────' }, delay: 400 },
   { line: { type: 'spinner', content: '  ⠋ Consultando AWS Sustainability API...' }, delay: 500 },
   { line: { type: 'success', content: '  ✓ Dados de emissão recebidos (Scope 1, 2, 3)' }, delay: 1000 },
-  { line: { type: 'spinner', content: '  ⠙ Calculando fator de emissão por recurso...' }, delay: 400 },
-  { line: { type: 'spinner', content: '  ⠹ Aplicando modelo de alocação v3.0...' }, delay: 600 },
-  { line: { type: 'spinner', content: '  ⠸ Correlacionando custos × emissões...' }, delay: 500 },
-  { line: { type: 'spinner', content: '  ⠼ Identificando oportunidades de otimização...' }, delay: 700 },
-  { line: { type: 'spinner', content: '  ⠴ Priorizando por impacto financeiro e ambiental...' }, delay: 500 },
-  { line: { type: 'success', content: '  ✓ Cálculo completo!' }, delay: 400 },
+  { line: { type: 'info', content: '  [░░░░░░░░░░░░░░░░░░░░]   0%  iniciando cálculo...' }, delay: 300 },
+  { line: { type: 'info', content: '  [████░░░░░░░░░░░░░░░░]  20%  fator de emissão por recurso...' }, delay: 400 },
+  { line: { type: 'info', content: '  [████████░░░░░░░░░░░░]  40%  modelo de alocação v3.0...' }, delay: 500 },
+  { line: { type: 'info', content: '  [████████████░░░░░░░░]  60%  correlacionando custos × emissões...' }, delay: 500 },
+  { line: { type: 'info', content: '  [████████████████░░░░]  80%  identificando oportunidades...' }, delay: 400 },
+  { line: { type: 'info', content: '  [████████████████████] 100%  priorizando por impacto...' }, delay: 400 },
+  { line: { type: 'success', content: '  ✓ Cálculo completo!' }, delay: 300 },
   { line: { type: 'info', content: '' }, delay: 200 },
   { line: { type: 'info', content: '  ┌─────────────────────────────────────────┐' }, delay: 100 },
   { line: { type: 'info', content: '  │         RESULTADOS DO SCAN              │' }, delay: 100 },
@@ -220,6 +256,7 @@ export function TerminalPage() {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [autoTyped, setAutoTyped] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
@@ -227,6 +264,29 @@ export function TerminalPage() {
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [lines]);
+
+  // Auto-type "carbonlens scan" on first load for demo effect
+  useEffect(() => {
+    if (autoTyped) return;
+    const cmd = 'carbonlens scan';
+    let i = 0;
+    const typeInterval = setInterval(() => {
+      if (i <= cmd.length) {
+        setInput(cmd.slice(0, i));
+        i++;
+      } else {
+        clearInterval(typeInterval);
+        // Auto-execute after a pause
+        setTimeout(() => {
+          setInput('');
+          setAutoTyped(true);
+          processCommand(cmd);
+        }, 600);
+      }
+    }, 70);
+    return () => clearInterval(typeInterval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Cleanup animation on unmount
   useEffect(() => {
@@ -296,6 +356,10 @@ export function TerminalPage() {
         break;
       case 'score':
         setLines((prev) => [...prev, ...SCORE_OUTPUT]);
+        break;
+      case 'compare':
+      case 'compare --all':
+        playAnimation(COMPARE_ANIMATED);
         break;
       case 'version':
       case '--version':
