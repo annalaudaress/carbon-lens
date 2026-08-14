@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { FilterCategory, Report } from '../types';
 import {
   Header,
   SustainabilityScoreCard,
   ResourceScoreBar,
   ImpactMetricsPanel,
-  OpportunityCard,
+  OpportunityRow,
+  OpportunityDetail,
   FilterBar,
   ReportModal,
 } from '../components';
@@ -21,114 +22,129 @@ export function Dashboard() {
   const [activeFilter, setActiveFilter] = useState<FilterCategory>('all');
   const [report, setReport] = useState<Report | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedOpp, setSelectedOpp] = useState<string | null>(null);
 
   const filteredOpportunities =
     activeFilter === 'all'
       ? opportunities
       : opportunities.filter((o) => o.category === activeFilter);
 
+  const selectedOpportunity = opportunities.find((o) => o.id === selectedOpp);
+
   const handleGenerateReport = () => {
     setIsGenerating(true);
-    // Simulate async generation
     setTimeout(() => {
       setReport(generateReport());
       setIsGenerating(false);
     }, 1500);
   };
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (report) {
+        if (e.key === 'Escape') setReport(null);
+        return;
+      }
+      switch (e.key) {
+        case '1': setActiveFilter('all'); break;
+        case '2': setActiveFilter('compute'); break;
+        case '3': setActiveFilter('storage'); break;
+        case '4': setActiveFilter('database'); break;
+        case 'r': handleGenerateReport(); break;
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  });
+
   return (
-    <div className="min-h-screen bg-terminal-bg">
+    <div className="min-h-screen bg-term-bg flex flex-col scanlines">
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Top section: Score + Resource Scores */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Sustainability Score */}
-          <div className="lg:col-span-4">
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Top panels row */}
+        <div className="grid grid-cols-1 md:grid-cols-12 border-b border-term-border">
+          {/* Score panel */}
+          <div className="md:col-span-4 border-r border-term-border">
             <SustainabilityScoreCard score={sustainabilityScore} />
           </div>
 
-          {/* Resource Scores */}
-          <div className="lg:col-span-8 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-mono text-terminal-dim uppercase tracking-wider">
-                Resource Scores
-              </h2>
-              <button
-                onClick={handleGenerateReport}
-                disabled={isGenerating}
-                className={`
-                  flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-mono font-medium
-                  border transition-all duration-200
-                  ${
-                    isGenerating
-                      ? 'bg-terminal-surface border-terminal-border text-terminal-dim cursor-wait'
-                      : 'bg-green-500/20 border-green-500/50 text-green-400 hover:bg-green-500/30 hover:shadow-sm hover:shadow-green-500/10 active:scale-95'
-                  }
-                `}
-              >
-                {isGenerating ? (
-                  <>
-                    <span className="animate-spin">⏳</span>
-                    <span>Analyzing...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>📊</span>
-                    <span>Generate Report</span>
-                  </>
-                )}
-              </button>
+          {/* Resource scores panel */}
+          <div className="md:col-span-8">
+            <div className="bg-term-highlight px-2 py-0.5 border-b border-term-border">
+              <span className="text-term-cyan text-xs">┤ Scores por Recurso ├</span>
             </div>
-            {resourceScores.map((resource) => (
-              <ResourceScoreBar key={resource.id} resource={resource} />
-            ))}
+            <div className="divide-y divide-term-border">
+              {resourceScores.map((resource) => (
+                <ResourceScoreBar key={resource.id} resource={resource} />
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Impact Metrics */}
-        <section>
-          <h2 className="text-sm font-mono text-terminal-dim uppercase tracking-wider mb-3">
-            Impact Overview
-          </h2>
-          <ImpactMetricsPanel metrics={impactMetrics} />
-        </section>
+        {/* Impact metrics */}
+        <ImpactMetricsPanel metrics={impactMetrics} />
 
-        {/* Opportunities */}
-        <section>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <h2 className="text-sm font-mono text-terminal-dim uppercase tracking-wider">
-              Optimization Opportunities
-              <span className="ml-2 text-terminal-text">
-                ({filteredOpportunities.length})
+        {/* Opportunities table */}
+        <div className="flex-1 flex flex-col border-t border-term-border overflow-hidden">
+          <div className="bg-term-highlight px-2 py-0.5 border-b border-term-border flex items-center justify-between">
+            <span className="text-term-cyan text-xs">
+              ┤ Oportunidades de Otimização ├
+              <span className="text-term-dim ml-2">
+                [{filteredOpportunities.length} encontradas]
               </span>
-            </h2>
-            <FilterBar activeFilter={activeFilter} onFilterChange={setActiveFilter} />
+            </span>
+            <span className="text-term-dim text-xs">
+              clique para ver detalhes
+            </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredOpportunities.map((opportunity) => (
-              <OpportunityCard key={opportunity.id} opportunity={opportunity} />
+
+          {/* Table header */}
+          <div className="flex items-center gap-0 px-2 py-1 text-xs text-term-dim border-b border-term-border bg-term-highlight/50">
+            <span className="w-6 text-right mr-2">#</span>
+            <span className="w-16">PRIOR.</span>
+            <span className="w-20">CATEG.</span>
+            <span className="flex-1">OPORTUNIDADE</span>
+            <span className="w-24 text-right">ECONOMIA</span>
+            <span className="w-16 text-right">CO₂</span>
+            <span className="w-12 text-right">REC.</span>
+          </div>
+
+          {/* Table body */}
+          <div className="flex-1 overflow-y-auto">
+            {filteredOpportunities.map((opp, i) => (
+              <OpportunityRow
+                key={opp.id}
+                opportunity={opp}
+                index={i}
+                isSelected={selectedOpp === opp.id}
+                onSelect={() => setSelectedOpp(selectedOpp === opp.id ? null : opp.id)}
+              />
             ))}
+            {filteredOpportunities.length === 0 && (
+              <div className="text-center py-8 text-term-dim text-xs">
+                Nenhuma oportunidade encontrada para esta categoria.
+              </div>
+            )}
           </div>
-          {filteredOpportunities.length === 0 && (
-            <div className="text-center py-12 text-terminal-dim font-mono text-sm">
-              No opportunities found for this category.
+
+          {/* Detail panel */}
+          {selectedOpportunity && (
+            <div className="border-t border-term-border max-h-48 overflow-y-auto">
+              <OpportunityDetail opportunity={selectedOpportunity} />
             </div>
           )}
-        </section>
-
-        {/* Footer */}
-        <footer className="border-t border-terminal-border pt-6 pb-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-terminal-dim">
-            <p>
-              Carbon Lens v1.0.0 — Cloud + DevOps + FinOps + Sustainability
-            </p>
-            <p>
-              Data refreshed: {new Date().toLocaleDateString('en-US')} • Mock data for demonstration
-            </p>
-          </div>
-        </footer>
+        </div>
       </main>
+
+      {/* Bottom hotkey bar */}
+      <FilterBar
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        onGenerateReport={handleGenerateReport}
+        isGenerating={isGenerating}
+      />
 
       {/* Report Modal */}
       {report && <ReportModal report={report} onClose={() => setReport(null)} />}

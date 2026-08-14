@@ -3,37 +3,84 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --term-bg: #000000;
+    --term-fg: #c0c0c0;
+    --term-green: #00ff00;
+    --term-yellow: #ffff00;
+    --term-cyan: #00ffff;
+    --term-red: #ff0000;
+    --term-blue: #5f87ff;
+    --term-magenta: #ff00ff;
+    --term-dim: #555555;
+    --term-border: #333333;
+    --term-highlight: #1a1a2e;
+    --term-select: #003300;
+  }
+
   * {
     scrollbar-width: thin;
-    scrollbar-color: #1e2a3a #0a0e14;
+    scrollbar-color: #333333 #000000;
   }
 
   *::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
 
   *::-webkit-scrollbar-track {
-    background: #0a0e14;
+    background: #000000;
   }
 
   *::-webkit-scrollbar-thumb {
-    background-color: #1e2a3a;
-    border-radius: 3px;
-  }
-
-  *::-webkit-scrollbar-thumb:hover {
-    background-color: #2d3f52;
+    background-color: #333333;
   }
 
   ::selection {
-    background-color: rgba(34, 197, 94, 0.3);
-    color: #ffffff;
+    background-color: #003300;
+    color: #00ff00;
+  }
+
+  body {
+    background: var(--term-bg);
+    color: var(--term-fg);
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    overflow-x: hidden;
   }
 }
 
-@layer utilities {
-  .text-shadow-glow {
-    text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
-  }
+/* Scanline effect for extra terminal feel */
+.scanlines::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.03) 0px,
+    rgba(0, 0, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  z-index: 9999;
+}
+
+/* Blinking cursor */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Glow effect for active elements */
+.term-glow {
+  text-shadow: 0 0 5px currentColor;
 }

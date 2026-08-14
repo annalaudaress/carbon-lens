@@ -1,5 +1,4 @@
 import type { Report } from '../types';
-import { formatCurrency, formatDate, getPriorityColor, getPriorityLabel } from '../utils';
 
 interface Props {
   report: Report;
@@ -7,117 +6,118 @@ interface Props {
 }
 
 export function ReportModal({ report, onClose }: Props) {
+  const priorityLabels: Record<string, string> = {
+    critical: 'CRÍTICA',
+    high: 'ALTA',
+    medium: 'MÉDIA',
+    low: 'BAIXA',
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/80"
         onClick={onClose}
-        aria-hidden="true"
       />
 
-      {/* Modal */}
-      <div className="relative bg-terminal-surface border border-terminal-border rounded-xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl">
-        {/* Header */}
-        <div className="sticky top-0 bg-terminal-surface border-b border-terminal-border px-6 py-4 flex items-center justify-between rounded-t-xl">
-          <div>
-            <h2 className="text-lg font-mono font-semibold text-terminal-text flex items-center gap-2">
-              <span className="text-green-400">📋</span>
-              Sustainability Report
-            </h2>
-            <p className="text-xs font-mono text-terminal-dim mt-0.5">
-              Generated: {formatDate(report.generatedAt)}
-            </p>
-          </div>
+      {/* Terminal window */}
+      <div className="relative w-full max-w-3xl max-h-[85vh] overflow-y-auto border border-term-green bg-term-bg">
+        {/* Title bar */}
+        <div className="sticky top-0 bg-term-bg border-b border-term-green px-3 py-1 flex items-center justify-between z-10">
+          <span className="text-term-green font-bold">
+            ┤ Relatório de Sustentabilidade ├
+          </span>
           <button
             onClick={onClose}
-            className="text-terminal-dim hover:text-terminal-text transition-colors text-xl font-mono w-8 h-8 flex items-center justify-center rounded hover:bg-terminal-bg"
-            aria-label="Close report"
+            className="text-term-red hover:term-glow text-sm"
           >
-            ×
+            [✕ fechar]
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Score Summary */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-terminal-bg rounded-lg p-4 text-center border border-terminal-border">
-              <p className="text-xs font-mono text-terminal-dim uppercase mb-1">Score</p>
-              <p className="text-3xl font-mono font-bold text-yellow-400">
-                {report.sustainabilityScore}
-                <span className="text-sm text-terminal-dim">/100</span>
-              </p>
+        <div className="p-4 font-mono text-xs">
+          {/* ASCII header */}
+          <pre className="text-term-green mb-4">{`
+╔══════════════════════════════════════════════════════╗
+║          RELATÓRIO DE SUSTENTABILIDADE              ║
+║              Carbon Lens Analysis                   ║
+╚══════════════════════════════════════════════════════╝`}</pre>
+
+          {/* Summary metrics */}
+          <div className="mb-4 space-y-1">
+            <div className="text-term-dim">─── Resumo ───────────────────────────────────────</div>
+            <div>
+              <span className="text-term-dim">  Score de Sustentabilidade: </span>
+              <span className="text-term-yellow font-bold term-glow">{report.sustainabilityScore}/100</span>
             </div>
-            <div className="bg-terminal-bg rounded-lg p-4 text-center border border-terminal-border">
-              <p className="text-xs font-mono text-terminal-dim uppercase mb-1">Est. Savings</p>
-              <p className="text-2xl font-mono font-bold text-green-400">
-                {formatCurrency(report.estimatedSavings)}
-                <span className="text-xs text-terminal-dim">/mo</span>
-              </p>
+            <div>
+              <span className="text-term-dim">  Economia Estimada:         </span>
+              <span className="text-term-green font-bold">US$ {report.estimatedSavings}/mês</span>
             </div>
-            <div className="bg-terminal-bg rounded-lg p-4 text-center border border-terminal-border">
-              <p className="text-xs font-mono text-terminal-dim uppercase mb-1">CO₂ Reduction</p>
-              <p className="text-2xl font-mono font-bold text-emerald-400">
-                {report.co2Reduction}%
-              </p>
+            <div>
+              <span className="text-term-dim">  Redução de CO₂ Estimada:   </span>
+              <span className="text-term-cyan font-bold">{report.co2Reduction}%</span>
             </div>
+            <div className="text-term-dim">──────────────────────────────────────────────────</div>
           </div>
 
           {/* Summary text */}
-          <div className="bg-terminal-bg/50 rounded-lg p-4 border border-terminal-border">
-            <p className="text-sm font-mono text-terminal-text leading-relaxed">
-              <span className="text-green-400">$</span> {report.summary}
-            </p>
+          <div className="mb-4">
+            <span className="text-term-green">$ </span>
+            <span className="text-term-fg">{report.summary}</span>
+            <span className="cursor-blink text-term-green">▊</span>
           </div>
 
-          {/* Top Opportunities */}
-          <div>
-            <h3 className="text-sm font-mono font-semibold text-terminal-text mb-3 flex items-center gap-2">
-              <span className="text-yellow-400">⚡</span>
-              Top Opportunities
-            </h3>
-            <div className="space-y-2">
-              {report.topOpportunities.map((opp, index) => (
-                <div
-                  key={opp.id}
-                  className="flex items-center justify-between bg-terminal-bg rounded-lg px-4 py-3 border border-terminal-border"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono text-terminal-dim w-5">
-                      #{index + 1}
-                    </span>
-                    <div>
-                      <p className="text-sm font-mono text-terminal-text">{opp.title}</p>
-                      <span
-                        className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${getPriorityColor(opp.priority)}`}
-                      >
-                        {getPriorityLabel(opp.priority)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-mono text-green-400 font-medium">
-                      -{formatCurrency(opp.estimatedSavings)}/mo
-                    </p>
-                    <p className="text-xs font-mono text-emerald-400">
-                      -{opp.co2Reduction}% CO₂
-                    </p>
-                  </div>
+          {/* Top Opportunities Table */}
+          <div className="mb-4">
+            <div className="text-term-dim">─── Top Oportunidades ────────────────────────────</div>
+            <div className="mt-1">
+              <div className="flex text-term-dim border-b border-term-border py-1">
+                <span className="w-6">#</span>
+                <span className="w-16">PRIOR.</span>
+                <span className="flex-1">OPORTUNIDADE</span>
+                <span className="w-24 text-right">ECONOMIA</span>
+                <span className="w-16 text-right">CO₂</span>
+              </div>
+              {report.topOpportunities.map((opp, i) => (
+                <div key={opp.id} className="flex py-1 hover:bg-term-highlight">
+                  <span className="text-term-dim w-6">{i + 1}.</span>
+                  <span className={`w-16 ${
+                    opp.priority === 'critical' ? 'text-term-red' :
+                    opp.priority === 'high' ? 'text-term-yellow' :
+                    'text-term-cyan'
+                  }`}>
+                    {priorityLabels[opp.priority]}
+                  </span>
+                  <span className="text-term-fg flex-1 truncate">{opp.title}</span>
+                  <span className="text-term-green w-24 text-right">
+                    -US${opp.estimatedSavings}/mês
+                  </span>
+                  <span className="text-term-cyan w-16 text-right">
+                    -{opp.co2Reduction}%
+                  </span>
                 </div>
               ))}
             </div>
+            <div className="text-term-dim mt-1">──────────────────────────────────────────────────</div>
+          </div>
+
+          {/* Footer */}
+          <div className="text-term-dim text-center">
+            Gerado em: {new Date(report.generatedAt).toLocaleString('pt-BR')}
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="sticky bottom-0 bg-terminal-surface border-t border-terminal-border px-6 py-4 rounded-b-xl">
-          <button
-            onClick={onClose}
-            className="w-full py-2.5 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 font-mono text-sm font-medium hover:bg-green-500/30 transition-colors"
-          >
-            Close Report
-          </button>
+        {/* Bottom bar */}
+        <div className="sticky bottom-0 bg-term-highlight border-t border-term-green px-3 py-1 flex items-center justify-between">
+          <span className="text-term-dim text-xs">
+            <span className="text-term-yellow">&lt;ESC&gt;</span> fechar
+          </span>
+          <span className="text-term-green text-xs">
+            Carbon Lens v1.0.0
+          </span>
         </div>
       </div>
     </div>
