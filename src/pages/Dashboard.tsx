@@ -59,7 +59,7 @@ export function Dashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-term-bg flex flex-col scanlines">
+    <div className="flex-1 bg-term-bg flex flex-col overflow-hidden">
       <Header />
 
       <main className="flex-1 flex flex-col overflow-hidden">
