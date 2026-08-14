@@ -143,7 +143,7 @@ const VERSION_OUTPUT: TerminalLine[] = [
   { type: 'info', content: '' },
   { type: 'success', content: '  Carbon Lens CLI v1.0.0' },
   { type: 'info', content: '  Cloud Sustainability Analysis Tool' },
-  { type: 'info', content: '  Build: 2026-08-14' },
+  { type: 'info', content: '  Build: 2026-08-01' },
   { type: 'info', content: '' },
 ];
 
