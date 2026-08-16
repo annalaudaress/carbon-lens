@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Lens — Pitch 3min</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --green-primary: #10b981;
+            --green-dark: #059669;
+            --green-light: #d1fae5;
+            --dark-bg: #0f172a;
+            --dark-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #34d399;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .presentation {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 80px 100px 80px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+
+        .slide.prev {
+            opacity: 0;
+            transform: translateX(-100%);
+        }
+
+        /* Slide 1 - Capa */
+        .slide-cover {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #064e3b 100%);
+            text-align: center;
+        }
+
+        .slide-cover .logo {
+            font-size: 4.5rem;
+            margin-bottom: 10px;
+        }
+
+        .slide-cover h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981, #34d399, #6ee7b7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .slide-cover .tagline {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .team {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .team-member {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 15px 25px;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .team-member .name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--accent);
+        }
+
+        .team-member .role {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Slides comuns */
+        .slide-content {
+            background: linear-gradient(160deg, #0f172a 0%, #1a2332 100%);
+        }
+
+        .slide-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .slide-header .emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .slide-header h2 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .slide-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .content-grid.single {
+            grid-template-columns: 1fr;
+            max-width: 800px;
+        }
+
+        .card {
+            background: var(--dark-card);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            border-radius: 16px;
+            padding: 30px;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .card h3 {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card p, .card li {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card ul li {
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .card ul li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--green-primary);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 25px 35px;
+            text-align: center;
+            max-width: 900px;
+        }
+
+        .highlight-box p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .highlight-box strong {
+            color: var(--accent);
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat .number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .stat .label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* ODS badge */
+        .ods-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 30px;
+            padding: 10px 20px;
+            margin-top: 15px;
+        }
+
+        .ods-badge span {
+            font-size: 0.95rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Terminal mockup */
+        .terminal-mock {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .terminal-mock .line {
+            margin: 4px 0;
+            color: #8b949e;
+        }
+
+        .terminal-mock .prompt {
+            color: var(--accent);
+        }
+
+        .terminal-mock .output {
+            color: #c9d1d9;
+        }
+
+        .terminal-mock .highlight {
+            color: #ffa657;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 25px;
+            border-radius: 50px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .nav button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav button:hover {
+            color: var(--accent);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .nav .counter {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(148, 163, 184, 0.3);
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: var(--accent);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--green-primary), var(--accent));
+            transition: width 0.5s ease;
+            z-index: 200;
+        }
+
+        /* Timer */
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            z-index: 100;
+            background: rgba(30, 41, 59, 0.8);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        /* Keyboard hint */
+        .kb-hint {
+            position: fixed;
+            top: 20px;
+            left: 30px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            opacity: 0.5;
+            z-index: 100;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 40px 30px;
+            }
+            .slide-cover h1 {
+                font-size: 2.2rem;
+            }
+            .slide-header h2 {
+                font-size: 1.8rem;
+            }
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            .team {
+                flex-direction: column;
+                align-items: center;
+            }
+            .stats-row {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="timer" id="timer">⏱ 3:00</div>
+    <div class="kb-hint">← → ou clique para navegar</div>
+
+    <div class="presentation">
+
+        <!-- SLIDE 1: CAPA + EQUIPE -->
+        <div class="slide slide-cover active" data-slide="0">
+            <div class="logo">🌿</div>
+            <h1>Carbon Lens</h1>
+            <p class="tagline">Visibilidade de carbono para infraestrutura cloud</p>
+            <div class="team">
+                <div class="team-member">
+                    <div class="name">Anna Laura</div>
+                    <div class="role">DevOps / Cloud</div>
+                </div>
+                <div class="team-member">
+                    <div class="name">Membro 2</div>
+                    <div class="role">Desenvolvimento</div>
+                </div>
+                <div class="team-member">
+                    <div class="name">Membro 3</div>
+                    <div class="role">Dados / Analytics</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: PROBLEMA + ODS -->
+        <div class="slide slide-content" data-slide="1">
+            <div class="slide-header">
+                <div class="emoji">🌱</div>
+                <h2>O Problema</h2>
+                <p class="subtitle">Cloud invisível = carbono invisível</p>
+            </div>
+            <div class="content-grid">
+                <div class="card">
+                    <h3>🔴 O cenário atual</h3>
+                    <ul>
+                        <li>Data centers representam <strong style="color:#10b981">2-4% das emissões globais</strong> de CO₂</li>
+                        <li>Empresas não sabem quanto carbono sua infra emite</li>
+                        <li>Recursos ociosos geram custo E poluição</li>
+                        <li>Ferramentas de custo ignoram impacto ambiental</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🎯 ODS Atendida</h3>
+                    <p><strong style="color:#10b981">ODS 13 — Ação contra a mudança global do clima</strong></p>
+                    <p style="margin-top:12px">Medir para reduzir. Sem visibilidade, não há como agir de forma consciente sobre emissões de infraestrutura digital.</p>
+                    <div class="ods-badge">
+                        <span>🌍 ODS 13 · Meta 13.3</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: SOLUÇÃO PROPOSTA -->
+        <div class="slide slide-content" data-slide="2">
+            <div class="slide-header">
+                <div class="emoji">💻</div>
+                <h2>Solução Proposta</h2>
+                <p class="subtitle">CLI + Dashboard que traduz infra em pegada de carbono</p>
+            </div>
+            <div class="content-grid">
+                <div class="card">
+                    <h3>⚡ O que é o Carbon Lens</h3>
+                    <ul>
+                        <li>Ferramenta CLI estilo terminal (TUI) que escaneia recursos AWS</li>
+                        <li>Correlaciona uso de recursos com emissões de CO₂ por região</li>
+                        <li>Gera relatórios com sugestões de otimização verde</li>
+                        <li>Dashboard web com métricas em tempo real</li>
+                    </ul>
+                </div>
+                <div class="card" style="display:flex; align-items:center; justify-content:center;">
+                    <div class="terminal-mock">
+                        <div class="line"><span class="prompt">$</span> carbonlens scan --profile prod</div>
+                        <div class="line output">🔍 Escaneando 47 recursos em us-east-1...</div>
+                        <div class="line output">[████████████████░░░░] 80%</div>
+                        <div class="line output"></div>
+                        <div class="line output">📊 Resultado:</div>
+                        <div class="line output">   CO₂ estimado: <span class="highlight">142.3 kg/mês</span></div>
+                        <div class="line output">   Otimizável:   <span class="highlight">-38% (54 kg)</span></div>
+                        <div class="line output">   Economia:     <span class="highlight">~$420/mês</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: PÚBLICO-ALVO -->
+        <div class="slide slide-content" data-slide="3">
+            <div class="slide-header">
+                <div class="emoji">🎯</div>
+                <h2>Público-Alvo</h2>
+                <p class="subtitle">Quem se beneficia do Carbon Lens</p>
+            </div>
+            <div class="content-grid">
+                <div class="card">
+                    <h3>👩‍💻 Primário</h3>
+                    <ul>
+                        <li><strong style="color:#10b981">Times de DevOps/SRE</strong> — operam a infra diariamente</li>
+                        <li><strong style="color:#10b981">Cloud Engineers</strong> — provisionam e otimizam recursos</li>
+                        <li><strong style="color:#10b981">FinOps</strong> — já buscam eficiência de custo</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🏢 Secundário</h3>
+                    <ul>
+                        <li><strong style="color:#10b981">Gestores de ESG/Sustentabilidade</strong> — precisam de dados para reportar</li>
+                        <li><strong style="color:#10b981">CTOs e VPs de Engenharia</strong> — decisões estratégicas</li>
+                        <li><strong style="color:#10b981">Empresas com metas Net-Zero</strong> — compliance ambiental</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="stats-row">
+                <div class="stat">
+                    <div class="number">94%</div>
+                    <div class="label">das empresas usam cloud</div>
+                </div>
+                <div class="stat">
+                    <div class="number">72%</div>
+                    <div class="label">têm metas ESG</div>
+                </div>
+                <div class="stat">
+                    <div class="number">0</div>
+                    <div class="label">ferramentas CLI de carbono</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: RESULTADO ESPERADO -->
+        <div class="slide slide-content" data-slide="4">
+            <div class="slide-header">
+                <div class="emoji">📊</div>
+                <h2>Resultado Esperado</h2>
+                <p class="subtitle">Impacto mensurável em 3 frentes</p>
+            </div>
+            <div class="content-grid">
+                <div class="card">
+                    <h3>🌿 Redução de CO₂</h3>
+                    <ul>
+                        <li>Identificar recursos que emitem sem necessidade</li>
+                        <li>Sugerir rightsizing e regiões mais verdes</li>
+                        <li>Meta: <strong style="color:#10b981">-30% de emissões</strong> em 6 meses</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>💰 Redução de Custos</h3>
+                    <ul>
+                        <li>Recurso ocioso = gasto desnecessário + emissão</li>
+                        <li>Otimização verde = otimização financeira</li>
+                        <li>Meta: <strong style="color:#10b981">-25% na fatura cloud</strong></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>📈 Eficiência Operacional</h3>
+                    <ul>
+                        <li>Visibilidade em tempo real para decisões rápidas</li>
+                        <li>Relatórios automáticos para compliance ESG</li>
+                        <li>Integração no workflow DevOps existente</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🏆 Cultura Green Cloud</h3>
+                    <ul>
+                        <li>Conscientização do time sobre impacto ambiental</li>
+                        <li>Métricas de carbono no CI/CD pipeline</li>
+                        <li>Score verde por equipe/projeto</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: DIFERENCIAL -->
+        <div class="slide slide-content" data-slide="5">
+            <div class="slide-header">
+                <div class="emoji">🚀</div>
+                <h2>Diferencial</h2>
+                <p class="subtitle">Por que não basta usar ferramentas tradicionais</p>
+            </div>
+            <div class="content-grid">
+                <div class="card">
+                    <h3>❌ Ferramentas tradicionais</h3>
+                    <ul>
+                        <li>CloudWatch, Cost Explorer = só custo</li>
+                        <li>AWS Carbon Footprint Tool = descontinuada (CCFT)</li>
+                        <li>Não correlacionam custo ↔ carbono</li>
+                        <li>Interface web pesada, sem automação CLI</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>✅ Carbon Lens</h3>
+                    <ul>
+                        <li><strong style="color:#10b981">CLI-first</strong> — integra com scripts e CI/CD</li>
+                        <li><strong style="color:#10b981">Correlação custo × carbono</strong> — visão unificada</li>
+                        <li><strong style="color:#10b981">Sugestões actionable</strong> — não só dados, ações</li>
+                        <li><strong style="color:#10b981">Open-source</strong> — comunidade + transparência</li>
+                        <li><strong style="color:#10b981">Tempo real</strong> — não relatório mensal atrasado</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box" style="margin-top:30px">
+                <p>💡 Nenhuma ferramenta open-source hoje oferece <strong>visibilidade de carbono por recurso</strong> com interface CLI para DevOps. Carbon Lens preenche essa lacuna.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: VALIDAÇÃO -->
+        <div class="slide slide-content" data-slide="6">
+            <div class="slide-header">
+                <div class="emoji">✅</div>
+                <h2>Validação</h2>
+                <p class="subtitle">O que já fizemos para provar que funciona</p>
+            </div>
+            <div class="content-grid">
+                <div class="card">
+                    <h3>🛠️ MVP Funcional</h3>
+                    <ul>
+                        <li>Protótipo web deployado e acessível</li>
+                        <li>Interface terminal com scan simulado</li>
+                        <li>Dashboard com métricas e relatórios</li>
+                        <li>Deploy no GitHub Pages: <strong style="color:#10b981">carbon-lens</strong></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🔬 Pesquisa técnica</h3>
+                    <ul>
+                        <li>Mapeamento de fatores de emissão por região AWS</li>
+                        <li>Estudo da API AWS (CloudWatch + Cost Explorer)</li>
+                        <li>Benchmark de cálculo: kWh → kgCO₂ por tipo de instância</li>
+                        <li>Referência: metodologia GHG Protocol Scope 2/3</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>💬 Feedback</h3>
+                    <ul>
+                        <li>Apresentação interna para o time DevOps</li>
+                        <li>Validação da dor: ninguém sabe quanto CO₂ a infra emite</li>
+                        <li>Interesse real de times FinOps em adotar</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🗺️ Próximos passos</h3>
+                    <ul>
+                        <li>Integração real com APIs AWS</li>
+                        <li>CLI Go/Python publicada no PyPI/brew</li>
+                        <li>Plugin para Terraform (carbon check pré-deploy)</li>
+                        <li>Beta com 3 times internos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NAVEGAÇÃO -->
+    <nav class="nav">
+        <button onclick="prevSlide()" aria-label="Slide anterior">‹</button>
+        <div class="dots" id="dots"></div>
+        <button onclick="nextSlide()" aria-label="Próximo slide">›</button>
+    </nav>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const dotsContainer = document.getElementById('dots');
+        const progressBar = document.getElementById('progressBar');
+        const timerEl = document.getElementById('timer');
+        let current = 0;
+        let timerStarted = false;
+        let timerSeconds = 180; // 3 minutos
+        let timerInterval = null;
+
+        // Criar dots
+        slides.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'dot' + (i === 0 ? ' active' : '');
+            dot.onclick = () => goToSlide(i);
+            dotsContainer.appendChild(dot);
+        });
+
+        function updateSlides() {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active', 'prev');
+                if (i === current) slide.classList.add('active');
+                else if (i < current) slide.classList.add('prev');
+            });
+
+            document.querySelectorAll('.dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === current);
+            });
+
+            // Progress bar
+            const progress = ((current + 1) / slides.length) * 100;
+            progressBar.style.width = progress + '%';
+        }
+
+        function nextSlide() {
+            if (!timerStarted) startTimer();
+            if (current < slides.length - 1) {
+                current++;
+                updateSlides();
+            }
+        }
+
+        function prevSlide() {
+            if (current > 0) {
+                current--;
+                updateSlides();
+            }
+        }
+
+        function goToSlide(index) {
+            if (!timerStarted) startTimer();
+            current = index;
+            updateSlides();
+        }
+
+        // Timer
+        function startTimer() {
+            timerStarted = true;
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerEl.textContent = '⏱ 0:00';
+                    timerEl.style.color = '#ef4444';
+                    return;
+                }
+                const min = Math.floor(timerSeconds / 60);
+                const sec = timerSeconds % 60;
+                timerEl.textContent = `⏱ ${min}:${sec.toString().padStart(2, '0')}`;
+                
+                // Warning at 30s
+                if (timerSeconds <= 30) {
+                    timerEl.style.color = '#ef4444';
+                } else if (timerSeconds <= 60) {
+                    timerEl.style.color = '#fbbf24';
+                }
+            }, 1000);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'f' || e.key === 'F') {
+                // Fullscreen
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        // Touch/swipe support
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+        document.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) nextSlide();
+                else prevSlide();
+            }
+        });
+    </script>
+</body>
+</html>
